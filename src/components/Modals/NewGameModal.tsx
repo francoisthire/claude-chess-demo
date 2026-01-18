@@ -7,6 +7,7 @@ interface NewGameModalProps {
   isOpen: boolean;
   onStart: (config: GameConfig) => void;
   isLoading?: boolean;
+  loadProgress?: number;
 }
 
 export interface GameConfig {
@@ -15,7 +16,7 @@ export interface GameConfig {
   difficulty: DifficultyLevel;
 }
 
-export function NewGameModal({ isOpen, onStart, isLoading = false }: NewGameModalProps) {
+export function NewGameModal({ isOpen, onStart, isLoading = false, loadProgress = 0 }: NewGameModalProps) {
   const [mode, setMode] = useState<GameMode>('ai');
   const [playerColor, setPlayerColor] = useState<Color>('w');
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(3);
@@ -106,7 +107,14 @@ export function NewGameModal({ isOpen, onStart, isLoading = false }: NewGameModa
           onClick={handleStart}
           disabled={isLoading}
         >
-          {isLoading ? 'Chargement de Stockfish...' : 'Commencer'}
+          {isLoading ? (
+            <>
+              <span className={styles.spinner} />
+              Chargement de Stockfish... {loadProgress > 0 ? `${loadProgress}%` : ''}
+            </>
+          ) : (
+            'Commencer'
+          )}
         </button>
       </div>
     </div>

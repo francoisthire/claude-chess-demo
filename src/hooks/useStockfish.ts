@@ -8,15 +8,57 @@ const STOCKFISH_CDN_URL = 'https://cdn.jsdelivr.net/npm/stockfish@17/src/stockfi
 interface UseStockfishReturn {
   isReady: boolean;
   isThinking: boolean;
+  loadProgress: number; // 0-100
   getBestMove: (fen: string) => Promise<string | null>;
   stop: () => void;
   loadEngine: () => Promise<void>;
+}
+
+// Créer un worker depuis une URL cross-origin via blob
+async function createWorkerFromURL(url: string, onProgress?: (progress: number) => void): Promise<Worker> {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Stockfish: ${response.status}`);
+  }
+
+  const contentLength = response.headers.get('content-length');
+  const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+  if (!response.body) {
+    // Fallback sans progression
+    const text = await response.text();
+    const blob = new Blob([text], { type: 'application/javascript' });
+    return new Worker(URL.createObjectURL(blob));
+  }
+
+  // Lire avec progression
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    chunks.push(value);
+    received += value.length;
+
+    if (total && onProgress) {
+      onProgress(Math.round((received / total) * 100));
+    }
+  }
+
+  const blob = new Blob(chunks as BlobPart[], { type: 'application/javascript' });
+  const blobUrl = URL.createObjectURL(blob);
+  return new Worker(blobUrl);
 }
 
 export function useStockfish(): UseStockfishReturn {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
   const { isThinking, setThinking, setReady, level } = useAIStore();
   const resolveRef = useRef<((move: string | null) => void) | null>(null);
 
@@ -25,15 +67,16 @@ export function useStockfish(): UseStockfishReturn {
     if (workerRef.current || isLoading) return;
 
     setIsLoading(true);
+    setLoadProgress(0);
 
     try {
-      // Créer le worker depuis le CDN
-      const worker = new Worker(STOCKFISH_CDN_URL);
+      // Créer le worker depuis le CDN via blob (contourne CORS)
+      const worker = await createWorkerFromURL(STOCKFISH_CDN_URL, setLoadProgress);
       workerRef.current = worker;
 
       await new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => {
-          reject(new Error('Stockfish loading timeout'));
+          reject(new Error('Stockfish initialization timeout'));
         }, 30000);
 
         worker.onmessage = (e: MessageEvent) => {
@@ -78,6 +121,7 @@ export function useStockfish(): UseStockfishReturn {
     } catch (error) {
       console.error('Failed to load Stockfish:', error);
       workerRef.current = null;
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -126,6 +170,7 @@ export function useStockfish(): UseStockfishReturn {
   return {
     isReady,
     isThinking,
+    loadProgress,
     getBestMove,
     stop,
     loadEngine,

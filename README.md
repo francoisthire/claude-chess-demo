@@ -2,6 +2,12 @@
 
 Un jeu d'échecs sur navigateur avec une interface utilisateur premium, conçu pour surpasser les standards actuels du marché.
 
+> **Note** : Cette application a été entièrement créée pour tester les capacités de [Claude AI](https://claude.ai) (Anthropic) en développement logiciel. Le code a été généré par Claude Opus 4.5 via [Claude Code](https://docs.anthropic.com/en/docs/claude-code), en suivant une approche architecture-first avec des phases de développement itératives.
+
+## Vous ne connaissez pas les échecs ?
+
+Apprenez les règles du jeu : [Comment jouer aux échecs - Chess.com](https://www.chess.com/fr/comment-jouer-aux-echecs)
+
 ## Aperçu
 
 Échecs Premium est un jeu d'échecs local jouable directement dans le navigateur. L'accent est mis sur une expérience visuelle exceptionnelle avec des animations fluides, des thèmes luxueux et une attention particulière aux détails d'interaction.
@@ -33,6 +39,58 @@ npm run dev
 
 # Build pour production
 npm run build
+```
+
+## Déploiement sur GitHub Pages
+
+1. Créez un repository GitHub et poussez votre code
+2. Modifiez `vite.config.ts` : changez `'/chess/'` par le nom de votre repository
+3. Construisez pour GitHub Pages :
+   ```bash
+   GITHUB_PAGES=true npm run build
+   ```
+4. Dans les paramètres GitHub du repository :
+   - Allez dans **Settings** > **Pages**
+   - Source : sélectionnez **GitHub Actions**
+5. Créez le fichier `.github/workflows/deploy.yml` (voir ci-dessous)
+6. Poussez les changements - le site sera déployé automatiquement
+
+### Workflow GitHub Actions
+
+Créez `.github/workflows/deploy.yml` :
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          GITHUB_PAGES: true
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
 ```
 
 ## Scripts

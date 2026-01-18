@@ -2,6 +2,8 @@
 
 Un jeu d'échecs sur navigateur avec une interface utilisateur premium, conçu pour surpasser les standards actuels du marché.
 
+**[Jouer maintenant](https://francoisthire.github.io/claude-chess-demo/)**
+
 > **Note** : Cette application a été entièrement créée pour tester les capacités de [Claude AI](https://claude.ai) (Anthropic) en développement logiciel. Le code a été généré par Claude Opus 4.5 via [Claude Code](https://docs.anthropic.com/en/docs/claude-code), en suivant une approche architecture-first avec des phases de développement itératives.
 
 ## Vous ne connaissez pas les échecs ?

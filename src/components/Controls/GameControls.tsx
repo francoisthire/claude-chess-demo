@@ -7,7 +7,6 @@ interface GameControlsProps {
   onRedo: () => void;
   onFlip: () => void;
   onNewGame: () => void;
-  isAIMode?: boolean;
 }
 
 export function GameControls({
@@ -17,15 +16,14 @@ export function GameControls({
   onRedo,
   onFlip,
   onNewGame,
-  isAIMode = false,
 }: GameControlsProps) {
   return (
     <div className={styles.container}>
       <button
         className={styles.button}
         onClick={onUndo}
-        disabled={!canUndo || isAIMode}
-        title={isAIMode ? 'Undo désactivé en mode IA' : 'Annuler le dernier coup'}
+        disabled={!canUndo}
+        title="Annuler le dernier coup"
       >
         <UndoIcon />
         <span>Undo</span>
@@ -34,8 +32,8 @@ export function GameControls({
       <button
         className={styles.button}
         onClick={onRedo}
-        disabled={!canRedo || isAIMode}
-        title={isAIMode ? 'Redo désactivé en mode IA' : 'Refaire le coup'}
+        disabled={!canRedo}
+        title="Refaire le coup"
       >
         <RedoIcon />
         <span>Redo</span>

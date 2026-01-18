@@ -267,7 +267,6 @@ function App() {
             onRedo={redo}
             onFlip={flipBoard}
             onNewGame={handleNewGame}
-            isAIMode={enabled}
           />
 
           {enabled && (

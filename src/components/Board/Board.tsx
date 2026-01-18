@@ -2,6 +2,7 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore, getChessInstance } from '../../store/gameStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useAIStore } from '../../store/aiStore';
 import { SQUARES } from '../../types/chess';
 import type { Square as SquareType, Piece as PieceType } from '../../types/chess';
 import { Piece } from '../../assets/pieces';
@@ -22,6 +23,8 @@ export function Board() {
     selectSquare,
     makeMove,
   } = useGameStore();
+
+  const { enabled: aiEnabled, aiColor, isThinking } = useAIStore();
 
   const { showCoordinates, highlightMoves } = useSettingsStore();
 
@@ -101,6 +104,10 @@ export function Board() {
 
   const isGameActive = gameStatus === 'playing';
 
+  // Ne pas montrer la sélection/coups légaux quand c'est le tour de l'IA
+  const isAITurn = aiEnabled && turn === aiColor;
+  const showSelection = !isAITurn && !isThinking;
+
   // Ordre des cases selon l'orientation
   const displaySquares = orientation === 'black' ? [...SQUARES].reverse() : SQUARES;
 
@@ -126,8 +133,8 @@ export function Board() {
     <div className={styles.board} ref={boardRef}>
       {displaySquares.map((square, index) => {
         const piece = chess.get(square) as PieceType | null;
-        const isSelected = selectedSquare === square;
-        const isLegalMove = highlightMoves && legalMoves.includes(square);
+        const isSelected = showSelection && selectedSquare === square;
+        const isLegalMove = showSelection && highlightMoves && legalMoves.includes(square);
         const isLastMoveSquare = highlightMoves && (lastMove?.from === square || lastMove?.to === square);
         const isKingInCheck = kingInCheck === square;
         const isLight = isLightSquare(square);

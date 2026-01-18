@@ -2,76 +2,33 @@ import { useRef, useCallback, useState } from 'react';
 import { useAIStore } from '../store/aiStore';
 import { DIFFICULTY_LEVELS } from '../types/stockfish';
 
-// CDN URL for Stockfish - much faster than loading from GitHub Pages
-const STOCKFISH_CDN_URL = 'https://cdn.jsdelivr.net/npm/stockfish@17/src/stockfish-17.1-lite-single-03e3232.js';
+// Chemin local vers Stockfish (chargé depuis public/)
+const STOCKFISH_PATH = import.meta.env.BASE_URL + 'stockfish.js';
 
 interface UseStockfishReturn {
   isReady: boolean;
   isThinking: boolean;
-  loadProgress: number; // 0-100
   getBestMove: (fen: string) => Promise<string | null>;
   stop: () => void;
   loadEngine: () => Promise<void>;
-}
-
-// Créer un worker depuis une URL cross-origin via blob
-async function createWorkerFromURL(url: string, onProgress?: (progress: number) => void): Promise<Worker> {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch Stockfish: ${response.status}`);
-  }
-
-  const contentLength = response.headers.get('content-length');
-  const total = contentLength ? parseInt(contentLength, 10) : 0;
-
-  if (!response.body) {
-    // Fallback sans progression
-    const text = await response.text();
-    const blob = new Blob([text], { type: 'application/javascript' });
-    return new Worker(URL.createObjectURL(blob));
-  }
-
-  // Lire avec progression
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let received = 0;
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    chunks.push(value);
-    received += value.length;
-
-    if (total && onProgress) {
-      onProgress(Math.round((received / total) * 100));
-    }
-  }
-
-  const blob = new Blob(chunks as BlobPart[], { type: 'application/javascript' });
-  const blobUrl = URL.createObjectURL(blob);
-  return new Worker(blobUrl);
 }
 
 export function useStockfish(): UseStockfishReturn {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadProgress, setLoadProgress] = useState(0);
   const { isThinking, setThinking, setReady, level } = useAIStore();
   const resolveRef = useRef<((move: string | null) => void) | null>(null);
 
   // Charger le moteur à la demande (lazy loading)
   const loadEngine = useCallback(async () => {
-    if (workerRef.current || isLoading) return;
+    if (workerRef.current || isLoading || isReady) return;
 
     setIsLoading(true);
-    setLoadProgress(0);
 
     try {
-      // Créer le worker depuis le CDN via blob (contourne CORS)
-      const worker = await createWorkerFromURL(STOCKFISH_CDN_URL, setLoadProgress);
+      // Créer le worker depuis le fichier local
+      const worker = new Worker(STOCKFISH_PATH);
       workerRef.current = worker;
 
       await new Promise<void>((resolve, reject) => {
@@ -87,6 +44,7 @@ export function useStockfish(): UseStockfishReturn {
             clearTimeout(timeout);
             setIsReady(true);
             setReady(true);
+            setIsLoading(false);
             resolve();
           }
 
@@ -107,6 +65,7 @@ export function useStockfish(): UseStockfishReturn {
           clearTimeout(timeout);
           console.error('Stockfish worker error:', error);
           setThinking(false);
+          setIsLoading(false);
           if (resolveRef.current) {
             resolveRef.current(null);
             resolveRef.current = null;
@@ -121,11 +80,10 @@ export function useStockfish(): UseStockfishReturn {
     } catch (error) {
       console.error('Failed to load Stockfish:', error);
       workerRef.current = null;
-      throw error;
-    } finally {
       setIsLoading(false);
+      throw error;
     }
-  }, [isLoading, setThinking, setReady]);
+  }, [isLoading, isReady, setThinking, setReady]);
 
   // Obtenir le meilleur coup
   const getBestMove = useCallback((fen: string): Promise<string | null> => {
@@ -170,7 +128,6 @@ export function useStockfish(): UseStockfishReturn {
   return {
     isReady,
     isThinking,
-    loadProgress,
     getBestMove,
     stop,
     loadEngine,

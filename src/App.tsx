@@ -27,7 +27,7 @@ function App() {
     flipBoard,
   } = useGameStore();
   const { enabled, aiColor, level, isThinking, setEnabled, setAIColor, setLevel } = useAIStore();
-  const { isReady, getBestMove, loadEngine, loadProgress } = useStockfish();
+  const { isReady, getBestMove, loadEngine } = useStockfish();
 
   // Settings
   const { soundEnabled } = useSettingsStore();
@@ -310,7 +310,6 @@ function App() {
         isOpen={showNewGameModal}
         onStart={handleStartGame}
         isLoading={isLoadingEngine}
-        loadProgress={loadProgress}
       />
 
       {/* Settings Panel */}

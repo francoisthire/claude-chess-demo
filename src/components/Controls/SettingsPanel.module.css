@@ -176,3 +176,40 @@
   color: #666;
   text-align: center;
 }
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .panel {
+    width: calc(100vw - 2rem);
+    margin: 1rem;
+  }
+
+  .header {
+    padding: 14px 16px;
+  }
+
+  .header h2 {
+    font-size: 16px;
+  }
+
+  .content {
+    padding: 14px 16px;
+  }
+
+  .settingLabel {
+    font-size: 13px;
+  }
+
+  .settingDescription {
+    font-size: 11px;
+  }
+
+  .speedButtons {
+    flex-wrap: wrap;
+  }
+
+  .speedButton {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}

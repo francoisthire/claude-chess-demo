@@ -51,3 +51,35 @@
   background: linear-gradient(135deg, #5a8c69 0%, #4a7c59 100%);
   border-color: #6a9c79;
 }
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .container {
+    width: 100%;
+    max-width: calc(100vw - 32px);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .button span {
+    display: none;
+  }
+
+  .button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .newGame {
+    margin-left: 0;
+  }
+
+  .newGame span {
+    display: inline;
+  }
+}

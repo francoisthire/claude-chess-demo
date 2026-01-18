@@ -1,66 +1,87 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { useAIStore } from '../store/aiStore';
 import { DIFFICULTY_LEVELS } from '../types/stockfish';
+
+// CDN URL for Stockfish - much faster than loading from GitHub Pages
+const STOCKFISH_CDN_URL = 'https://cdn.jsdelivr.net/npm/stockfish@17/src/stockfish-17.1-lite-single-03e3232.js';
 
 interface UseStockfishReturn {
   isReady: boolean;
   isThinking: boolean;
   getBestMove: (fen: string) => Promise<string | null>;
   stop: () => void;
+  loadEngine: () => Promise<void>;
 }
 
 export function useStockfish(): UseStockfishReturn {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { isThinking, setThinking, setReady, level } = useAIStore();
   const resolveRef = useRef<((move: string | null) => void) | null>(null);
 
-  // Initialiser le worker
-  useEffect(() => {
-    // Créer le worker depuis le fichier public
-    const worker = new Worker('/stockfish.js');
-    workerRef.current = worker;
+  // Charger le moteur à la demande (lazy loading)
+  const loadEngine = useCallback(async () => {
+    if (workerRef.current || isLoading) return;
 
-    worker.onmessage = (e: MessageEvent) => {
-      const line = typeof e.data === 'string' ? e.data : '';
+    setIsLoading(true);
 
-      // Stockfish est prêt
-      if (line === 'readyok') {
-        setIsReady(true);
-        setReady(true);
-      }
+    try {
+      // Créer le worker depuis le CDN
+      const worker = new Worker(STOCKFISH_CDN_URL);
+      workerRef.current = worker;
 
-      // On a reçu le meilleur coup
-      if (line.startsWith('bestmove')) {
-        const parts = line.split(' ');
-        const move = parts[1];
-        setThinking(false);
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Stockfish loading timeout'));
+        }, 30000);
 
-        if (resolveRef.current) {
-          resolveRef.current(move || null);
-          resolveRef.current = null;
-        }
-      }
-    };
+        worker.onmessage = (e: MessageEvent) => {
+          const line = typeof e.data === 'string' ? e.data : '';
 
-    worker.onerror = (error) => {
-      console.error('Stockfish worker error:', error);
-      setThinking(false);
-      if (resolveRef.current) {
-        resolveRef.current(null);
-        resolveRef.current = null;
-      }
-    };
+          // Stockfish est prêt
+          if (line === 'readyok') {
+            clearTimeout(timeout);
+            setIsReady(true);
+            setReady(true);
+            resolve();
+          }
 
-    // Initialiser UCI
-    worker.postMessage('uci');
-    worker.postMessage('isready');
+          // On a reçu le meilleur coup
+          if (line.startsWith('bestmove')) {
+            const parts = line.split(' ');
+            const move = parts[1];
+            setThinking(false);
 
-    return () => {
-      worker.terminate();
+            if (resolveRef.current) {
+              resolveRef.current(move || null);
+              resolveRef.current = null;
+            }
+          }
+        };
+
+        worker.onerror = (error) => {
+          clearTimeout(timeout);
+          console.error('Stockfish worker error:', error);
+          setThinking(false);
+          if (resolveRef.current) {
+            resolveRef.current(null);
+            resolveRef.current = null;
+          }
+          reject(error);
+        };
+
+        // Initialiser UCI
+        worker.postMessage('uci');
+        worker.postMessage('isready');
+      });
+    } catch (error) {
+      console.error('Failed to load Stockfish:', error);
       workerRef.current = null;
-    };
-  }, [setThinking, setReady]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoading, setThinking, setReady]);
 
   // Obtenir le meilleur coup
   const getBestMove = useCallback((fen: string): Promise<string | null> => {
@@ -107,5 +128,6 @@ export function useStockfish(): UseStockfishReturn {
     isThinking,
     getBestMove,
     stop,
+    loadEngine,
   };
 }

@@ -6,7 +6,7 @@ import styles from './NewGameModal.module.css';
 interface NewGameModalProps {
   isOpen: boolean;
   onStart: (config: GameConfig) => void;
-  isStockfishReady: boolean;
+  isLoading?: boolean;
 }
 
 export interface GameConfig {
@@ -15,7 +15,7 @@ export interface GameConfig {
   difficulty: DifficultyLevel;
 }
 
-export function NewGameModal({ isOpen, onStart, isStockfishReady }: NewGameModalProps) {
+export function NewGameModal({ isOpen, onStart, isLoading = false }: NewGameModalProps) {
   const [mode, setMode] = useState<GameMode>('ai');
   const [playerColor, setPlayerColor] = useState<Color>('w');
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(3);
@@ -23,6 +23,7 @@ export function NewGameModal({ isOpen, onStart, isStockfishReady }: NewGameModal
   if (!isOpen) return null;
 
   const handleStart = () => {
+    if (isLoading) return;
     onStart({ mode, playerColor, difficulty });
   };
 
@@ -47,11 +48,9 @@ export function NewGameModal({ isOpen, onStart, isStockfishReady }: NewGameModal
             <button
               className={`${styles.option} ${mode === 'ai' ? styles.selected : ''}`}
               onClick={() => setMode('ai')}
-              disabled={!isStockfishReady}
             >
               <span className={styles.optionIcon}>🤖</span>
               <span className={styles.optionText}>vs Stockfish</span>
-              {!isStockfishReady && <span className={styles.loading}>Chargement...</span>}
             </button>
           </div>
         </div>
@@ -105,9 +104,9 @@ export function NewGameModal({ isOpen, onStart, isStockfishReady }: NewGameModal
         <button
           className={styles.startButton}
           onClick={handleStart}
-          disabled={mode === 'ai' && !isStockfishReady}
+          disabled={isLoading}
         >
-          Commencer
+          {isLoading ? 'Chargement de Stockfish...' : 'Commencer'}
         </button>
       </div>
     </div>

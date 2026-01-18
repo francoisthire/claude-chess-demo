@@ -27,7 +27,7 @@ function App() {
     flipBoard,
   } = useGameStore();
   const { enabled, aiColor, level, isThinking, setEnabled, setAIColor, setLevel } = useAIStore();
-  const { isReady, getBestMove } = useStockfish();
+  const { isReady, getBestMove, loadEngine } = useStockfish();
 
   // Settings
   const { soundEnabled } = useSettingsStore();
@@ -35,6 +35,7 @@ function App() {
   // Modal state
   const [showNewGameModal, setShowNewGameModal] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [isLoadingEngine, setIsLoadingEngine] = useState(false);
 
   // Timer configuration (can be made configurable in Phase 7)
   const timerConfig: TimerConfig = TIMER_PRESETS.rapid10;
@@ -139,7 +140,17 @@ function App() {
   }, [gameStatus, timer]);
 
   // Gérer le démarrage d'une nouvelle partie
-  const handleStartGame = (config: GameConfig) => {
+  const handleStartGame = async (config: GameConfig) => {
+    if (config.mode === 'ai' && !isReady) {
+      // Charger Stockfish à la demande (lazy loading depuis CDN)
+      setIsLoadingEngine(true);
+      try {
+        await loadEngine();
+      } finally {
+        setIsLoadingEngine(false);
+      }
+    }
+
     reset();
     timer.reset();
     gameStartedRef.current = false;
@@ -298,7 +309,7 @@ function App() {
       <NewGameModal
         isOpen={showNewGameModal}
         onStart={handleStartGame}
-        isStockfishReady={isReady}
+        isLoading={isLoadingEngine}
       />
 
       {/* Settings Panel */}

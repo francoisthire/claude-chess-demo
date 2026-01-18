@@ -7,7 +7,7 @@ export default defineConfig({
   // Base path for GitHub Pages - change to your repo name if not username.github.io
   // For repo "chess" -> base: '/chess/'
   // For username.github.io -> base: '/'
-  base: process.env.GITHUB_PAGES ? '/chess/' : '/',
+  base: process.env.GITHUB_PAGES ? '/claude-chess-demo/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

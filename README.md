@@ -44,7 +44,7 @@ npm run build
 ## Déploiement sur GitHub Pages
 
 1. Créez un repository GitHub et poussez votre code
-2. Modifiez `vite.config.ts` : changez `'/chess/'` par le nom de votre repository
+2. Modifiez `vite.config.ts` : changez `'/claude-chess-demo/'` par le nom de votre repository
 3. Construisez pour GitHub Pages :
    ```bash
    GITHUB_PAGES=true npm run build

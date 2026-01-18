@@ -1,0 +1,79 @@
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  min-width: 120px;
+  transition: all 0.2s ease;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.white {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  color: #333;
+  border: 2px solid #ccc;
+}
+
+.black {
+  background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+  color: #f5f5f5;
+  border: 2px solid #555;
+}
+
+.active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.active.white {
+  border-color: #4caf50;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
+}
+
+.active.black {
+  border-color: #4caf50;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
+}
+
+.lowTime .time {
+  color: #ff9800;
+}
+
+.critical .time {
+  color: #f44336;
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+.timeout {
+  opacity: 0.6;
+}
+
+.timeout .time {
+  color: #f44336;
+}
+
+.playerName {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.time {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

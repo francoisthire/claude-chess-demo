@@ -1,0 +1,33 @@
+interface PieceProps {
+  color: 'white' | 'black';
+  className?: string;
+}
+
+export function Queen({ color, className }: PieceProps) {
+  const stroke = color === 'white' ? '#333' : '#000';
+
+  return (
+    <svg viewBox="0 0 45 45" className={className} xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id={`queenGrad-${color}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={color === 'white' ? '#fff' : '#4a4a4a'} />
+          <stop offset="100%" stopColor={color === 'white' ? '#d4d4d4' : '#1a1a1a'} />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#queenGrad-${color})`} stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Crown points with circles */}
+        <circle cx="6" cy="12" r="2.5" />
+        <circle cx="14" cy="9" r="2.5" />
+        <circle cx="22.5" cy="8" r="2.5" />
+        <circle cx="31" cy="9" r="2.5" />
+        <circle cx="39" cy="12" r="2.5" />
+        {/* Crown body */}
+        <path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-8.5-14.5-8.5 14.5-7.5-13.5L9 26z" />
+        {/* Base */}
+        <path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" />
+        {/* Crown details */}
+        <path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" />
+      </g>
+    </svg>
+  );
+}

@@ -1,0 +1,97 @@
+.container {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border-radius: 8px;
+  border: 1px solid #444;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  min-height: 300px;
+  contain: layout style;
+}
+
+.header {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #444;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.moves {
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  overscroll-behavior: contain;
+}
+
+.movePair {
+  display: grid;
+  grid-template-columns: 32px 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.moveNumber {
+  color: #888;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.move {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-family: 'Courier New', Courier, monospace;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.move:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.move.active {
+  background: linear-gradient(135deg, #4a7c59 0%, #3a6449 100%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 24px 16px;
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Scrollbar styling */
+.moves::-webkit-scrollbar {
+  width: 6px;
+}
+
+.moves::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.moves::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+.moves::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}

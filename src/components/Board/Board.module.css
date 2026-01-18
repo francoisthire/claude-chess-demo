@@ -1,0 +1,222 @@
+/* Classic Wood Theme */
+:root {
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+  --board-light-hover: #f7e4c8;
+  --board-dark-hover: #c99a6b;
+  --highlight-selected: rgba(20, 85, 30, 0.5);
+  --highlight-legal: rgba(20, 85, 30, 0.4);
+  --highlight-last-move: rgba(155, 199, 0, 0.41);
+  --highlight-check: rgba(231, 76, 60, 0.8);
+  --highlight-capture: rgba(231, 76, 60, 0.6);
+  --border-color: #5d4037;
+  --border-outer: #3e2723;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 560px;
+  height: 560px;
+  border: 8px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 4px var(--border-outer),
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(0, 0, 0, 0.1);
+  /* Subtle wood grain texture via repeating gradient */
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 90, 43, 0.03) 2px,
+      rgba(139, 90, 43, 0.03) 4px
+    );
+}
+
+.square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+
+/* Light squares - Maple */
+.light {
+  background: linear-gradient(
+    135deg,
+    #f5e6cc 0%,
+    var(--board-light) 50%,
+    #e8cea3 100%
+  );
+}
+
+/* Dark squares - Walnut */
+.dark {
+  background: linear-gradient(
+    135deg,
+    #c9a86c 0%,
+    var(--board-dark) 50%,
+    #a67c52 100%
+  );
+}
+
+/* Hover effect */
+.square:hover {
+  filter: brightness(1.08);
+}
+
+/* Selected square */
+.selected {
+  background: var(--highlight-selected) !important;
+  box-shadow: inset 0 0 0 3px rgba(20, 85, 30, 0.6);
+}
+
+.selected.light {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 180, 100, 0.7) 0%,
+    rgba(80, 160, 80, 0.8) 100%
+  ) !important;
+}
+
+.selected.dark {
+  background: linear-gradient(
+    135deg,
+    rgba(80, 150, 80, 0.8) 0%,
+    rgba(60, 130, 60, 0.9) 100%
+  ) !important;
+}
+
+/* Last move highlight */
+.lastMove {
+  position: relative;
+}
+
+.lastMove::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--highlight-last-move);
+  pointer-events: none;
+}
+
+/* Legal move indicator (empty square) */
+.legalMove {
+  cursor: pointer;
+}
+
+.legalMoveIndicator {
+  width: 33%;
+  height: 33%;
+  background: radial-gradient(
+    circle,
+    rgba(20, 85, 30, 0.5) 0%,
+    rgba(20, 85, 30, 0.3) 100%
+  );
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Capture indicator (piece on square) */
+.captureIndicator {
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--highlight-capture);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: inset 0 0 8px rgba(231, 76, 60, 0.3);
+}
+
+/* Check highlight */
+.check {
+  position: relative;
+}
+
+.check::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    var(--highlight-check) 0%,
+    rgba(231, 76, 60, 0.4) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: pulse-check 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-check {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Piece container */
+.pieceContainer {
+  width: 85%;
+  height: 85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Dragging state */
+.dragging {
+  z-index: 1000;
+  cursor: grabbing !important;
+}
+
+.dragging .piece {
+  filter: drop-shadow(4px 8px 8px rgba(0, 0, 0, 0.5));
+}
+
+/* Piece SVG */
+.piece {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(2px 4px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* Selected piece lift effect - handled by Framer Motion */
+.selected .piece {
+  filter: drop-shadow(3px 6px 5px rgba(0, 0, 0, 0.4));
+}
+
+/* Coordinates (optional - for future use) */
+.coordinate {
+  position: absolute;
+  font-size: 10px;
+  font-weight: bold;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.coordinate.file {
+  bottom: 2px;
+  right: 4px;
+}
+
+.coordinate.rank {
+  top: 2px;
+  left: 4px;
+}
+
+.light .coordinate {
+  color: var(--board-dark);
+}
+
+.dark .coordinate {
+  color: var(--board-light);
+}

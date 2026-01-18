@@ -1,0 +1,30 @@
+{
+  "name": "chess",
+  "version": "1.0.0",
+  "description": "Un jeu d'échecs sur navigateur avec une interface utilisateur premium.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "framer-motion": "^12.26.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "stockfish": "^17.1.0",
+    "zustand": "^5.0.10"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

@@ -63,9 +63,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   makeMove: (from: Square, to: Square, promotion?: PieceSymbol) => {
     const state = get();
 
-    // Si on n'est pas à la fin de l'historique, on ne peut pas jouer
-    if (state.currentMoveIndex !== state.history.length - 1 && state.history.length > 0) {
-      return false;
+    // Si on n'est pas à la fin de l'historique, tronquer l'historique pour permettre un nouveau coup
+    // Cela permet de "revenir en arrière" et jouer différemment
+    let currentHistory = state.history;
+    if (state.currentMoveIndex < state.history.length - 1) {
+      // Tronquer l'historique après la position actuelle
+      currentHistory = state.history.slice(0, state.currentMoveIndex + 1);
     }
 
     // Vérifier si c'est une promotion de pion
@@ -90,7 +93,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const winner = gameStatus === 'checkmate' ? (chess.turn() === 'w' ? 'b' : 'w') : null;
         const newFen = chess.fen();
 
-        // Ajouter le coup à l'historique
+        // Ajouter le coup à l'historique (utilise currentHistory qui peut être tronqué)
         const historyMove: HistoryMove = {
           san: move.san,
           from: move.from as Square,
@@ -98,7 +101,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           fen: newFen,
         };
 
-        const newHistory = [...state.history, historyMove];
+        const newHistory = [...currentHistory, historyMove];
 
         set({
           fen: newFen,
